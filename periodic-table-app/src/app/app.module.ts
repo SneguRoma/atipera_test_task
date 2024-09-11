@@ -13,9 +13,16 @@ import { PeriodicTableComponent } from './components/periodic-table/periodic-tab
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { EditElementDialogComponent } from './components/edit-element-dialog/edit-element-dialog.component';
+import { MatDialogClose } from '@angular/material/dialog';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, PeriodicTableComponent],
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    PeriodicTableComponent,
+    EditElementDialogComponent,
+  ],
   imports: [
     BrowserModule,
     FormsModule,
@@ -23,6 +30,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
+    MatDialogClose,
     MatInputModule,
     MatFormFieldModule,
     MatTableModule,
