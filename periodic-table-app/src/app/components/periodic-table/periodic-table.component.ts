@@ -1,9 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  signal,
+  Signal,
+  OnInit,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { PeriodicElement } from '../../data';
+import { ELEMENT_DATA, PeriodicElement } from '../../data';
 import { DataLoadingService } from '../../services/data-loading.service';
 import { EditElementDialogComponent } from '../edit-element-dialog/edit-element-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { delay, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-periodic-table',
@@ -12,15 +20,22 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class PeriodicTableComponent implements OnInit {
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource!: MatTableDataSource<PeriodicElement>;
-  readonly dialog = inject(MatDialog);
+  dataSource = new MatTableDataSource();
+  elements: Signal<PeriodicElement[]> = signal<PeriodicElement[]>([]);
+  dialog = inject(MatDialog);
+  delayLoad!: Observable<PeriodicElement[]>;
 
-  constructor(private dataLoadingService: DataLoadingService) {}
-
-  ngOnInit() {
-    this.dataLoadingService.getElements().subscribe((elements) => {
-      this.dataSource = new MatTableDataSource(elements);
+  constructor(private dataLoadingService: DataLoadingService) {
+    effect(() => {
+      this.dataSource.data = this.elements();
     });
+  }
+  ngOnInit() {
+    this.delayLoad = of(ELEMENT_DATA).pipe(delay(1000));
+    this.delayLoad.subscribe((elements) => {
+      this.dataLoadingService.setElements(elements);
+    });
+    this.elements = this.dataLoadingService.getElements();
   }
 
   applyFilter(event: Event) {
@@ -36,10 +51,8 @@ export class PeriodicTableComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
       if (result !== undefined) {
-        row = result;
-        console.log('result', result);
+        this.dataLoadingService.updateElements(result);
       }
     });
   }
