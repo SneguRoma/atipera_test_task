@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { EditElementDialogComponent } from './components/edit-element-dialog/edit-element-dialog.component';
 import { MatDialogClose } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { MatDialogClose } from '@angular/material/dialog';
     MatInputModule,
     MatFormFieldModule,
     MatTableModule,
+    MatProgressSpinnerModule,
     CommonModule,
     BrowserAnimationsModule,
   ],

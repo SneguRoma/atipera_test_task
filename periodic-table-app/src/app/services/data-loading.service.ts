@@ -1,11 +1,16 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { PeriodicElement } from '../data';
+import { ELEMENT_DATA, PeriodicElement } from '../data';
+import { Observable, of, delay } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataLoadingService {
   private elementsSignal = signal<PeriodicElement[]>([]);
+
+  loadElements(): Observable<PeriodicElement[]> {
+    return of(ELEMENT_DATA).pipe(delay(1000));
+  }
 
   getElements(): WritableSignal<PeriodicElement[]> {
     return this.elementsSignal;

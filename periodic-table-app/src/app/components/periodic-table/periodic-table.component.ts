@@ -5,25 +5,36 @@ import {
   signal,
   Signal,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ELEMENT_DATA, PeriodicElement } from '../../data';
+import { PeriodicElement } from '../../data';
 import { DataLoadingService } from '../../services/data-loading.service';
 import { EditElementDialogComponent } from '../edit-element-dialog/edit-element-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { delay, Observable, of } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  first,
+  Subject,
+  Subscription,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-periodic-table',
   templateUrl: './periodic-table.component.html',
   styleUrl: './periodic-table.component.css',
 })
-export class PeriodicTableComponent implements OnInit {
+export class PeriodicTableComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
   dataSource = new MatTableDataSource();
   elements: Signal<PeriodicElement[]> = signal<PeriodicElement[]>([]);
   dialog = inject(MatDialog);
-  delayLoad!: Observable<PeriodicElement[]>;
+  filterSubject = new Subject<string>();
+  filterSubscription: Subscription = new Subscription();
+  isLoading = true;
+  selectedRow: PeriodicElement | null = null;
 
   constructor(private dataLoadingService: DataLoadingService) {
     effect(() => {
@@ -31,19 +42,36 @@ export class PeriodicTableComponent implements OnInit {
     });
   }
   ngOnInit() {
-    this.delayLoad = of(ELEMENT_DATA).pipe(delay(1000));
-    this.delayLoad.subscribe((elements) => {
-      this.dataLoadingService.setElements(elements);
-    });
+    this.dataLoadingService
+      .loadElements()
+      .pipe(first())
+      .subscribe((elements) => {
+        this.dataLoadingService.setElements(elements);
+        this.isLoading = false;
+      });
     this.elements = this.dataLoadingService.getElements();
+
+    this.filterSubscription = this.filterSubject
+      .pipe(
+        debounceTime(2000),
+        tap(() => {
+          this.isLoading = false;
+        }),
+        distinctUntilChanged(),
+      )
+      .subscribe((filterValue) => {
+        this.dataSource.filter = filterValue.trim().toLowerCase();
+      });
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.isLoading = true;
+    this.filterSubject.next(filterValue);
   }
 
   openDialog(row: PeriodicElement): void {
+    this.selectedRow = row;
     const dialogRef = this.dialog.open(EditElementDialogComponent, {
       width: 'auto',
       height: 'auto',
@@ -51,9 +79,14 @@ export class PeriodicTableComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      this.selectedRow = null;
       if (result !== undefined) {
         this.dataLoadingService.updateElements(result);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.filterSubscription.unsubscribe();
   }
 }
