@@ -7,6 +7,7 @@ import { PeriodicElement } from '../../data';
   templateUrl: './edit-element-dialog.component.html',
   styleUrl: './edit-element-dialog.component.css',
 })
+
 export class EditElementDialogComponent {
   readonly dialogRef = inject(MatDialogRef<EditElementDialogComponent>);
   readonly data = inject<PeriodicElement>(MAT_DIALOG_DATA);

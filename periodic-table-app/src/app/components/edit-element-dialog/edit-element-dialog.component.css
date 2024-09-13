@@ -1,15 +1,13 @@
-.modal-container{
-    display: flex;
-    flex-direction: column;
-    margin: 10px;
+.modal-container {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
 }
 
 .modal-title {
-   
-    margin: 15px;
-    
-  }
+  margin: 15px;
+}
 
-  .modal-button-block{
-    margin-bottom: 10px;
-  }
+.modal-button-block {
+  margin-bottom: 10px;
+}
