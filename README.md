@@ -13,7 +13,7 @@ The project is deployed here: https://66e8379138c6280099a752a0--ornate-arithmeti
 To run the project locally, follow these steps:
 
 ### Prerequisites
-* Node.js v14 or higher
+* Node.js v18.9.1  or higher
 * Angular CLI 18.2.2
 * Installation
 * Clone the repository:
